@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+env/
+venv/
+build/
+dist/
+*.log
+*.DS_Store
+*.egg-info/
+
+# Large local artifacts
+backend/uploads/
+backend/outputs/
+backend/.env
+backend/runs/
+
+# Frontend and notebooks not needed in backend image
+frontend/
+Congestion.ipynb
+README.md
+yolov8n.pt
