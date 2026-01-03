@@ -27,9 +27,8 @@ WORKDIR /app
 COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Copy backend source and model fallback
+# Copy backend source
 COPY backend /app/backend
-COPY yolov8n.pt /app/yolov8n.pt
 
 # Create runtime directories used by the app
 RUN mkdir -p /app/backend/uploads /app/backend/outputs /app/backend/models

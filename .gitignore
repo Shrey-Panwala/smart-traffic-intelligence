@@ -8,15 +8,24 @@ __pycache__/
 # Backend generated artifacts
 backend/outputs/
 backend/uploads/
+backend/.venv/
 
 # Frontend build output
 frontend/dist/
 frontend/node_modules/
+frontend/runs/
+
+# YOLO/Ultralytics prediction runs
+runs/
 
 # Environment files
 .env
 backend/.env
 frontend/.env
+
+# Keep empty runtime dirs via .gitkeep
+!backend/uploads/.gitkeep
+!backend/outputs/.gitkeep
 
 # Node logs
 frontend/npm-debug.log*

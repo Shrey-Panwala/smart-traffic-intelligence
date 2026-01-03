@@ -27,6 +27,33 @@ npm run dev
 ```
 Open http://localhost:5173.
 
+## Project Structure
+- `backend/` — FastAPI app, analysis pipeline, endpoints
+	- `models/` — place `best.pt` here (not committed by default)
+	- `uploads/` — incoming videos (gitignored; empty tracked via .gitkeep)
+	- `outputs/` — generated overlays/heatmaps (gitignored; empty tracked via .gitkeep)
+- `frontend/` — React app (Vite)
+- `runs/` — YOLO prediction artifacts (gitignored)
+- `Congestion.ipynb` — reference notebook for congestion logic
+
+## What’s Committed vs Generated
+- Committed: source code, configs, example env files (`.env.example`), small demo model `yolov8n.pt`.
+- Gitignored: virtual envs (`.venv`), `node_modules`, runtime artifacts (`uploads`, `outputs`, `runs`), real secrets (`.env`, Firebase keys).
+
+## Secrets & Environment
+- Do not commit `.env`. Use `backend/.env.example` and `frontend/.env.example` as templates.
+- Optional Firebase logging:
+	- `FIREBASE_PROJECT_ID` and `FIREBASE_ADMIN_CRED` in `backend/.env` (local only).
+
+## Model Weights
+- For custom training, place your weight at `backend/models/best.pt`.
+- If you prefer not to commit large weights, document download steps or attach them as a release asset.
+
+## Hackathon Tips
+- Keep clips short (10–30s) for fast demos.
+- Show the end-to-end flow: Upload → Analyze → Overlay/Charts → XAI.
+- Emphasize explainability and audit trail (optional Sheets logging).
+
 ## Workflow
 - Upload MP4 on Upload page
 - Analyze on Analysis page (auto-fills last uploaded path)
