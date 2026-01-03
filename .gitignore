@@ -18,10 +18,15 @@ frontend/runs/
 # YOLO/Ultralytics prediction runs
 runs/
 
-# Environment files
+# Environment files (do not commit)
 .env
+.env.*
 backend/.env
+backend/.env.*
 frontend/.env
+frontend/.env.*
+**/.env
+**/.env.*
 
 # Keep empty runtime dirs via .gitkeep
 !backend/uploads/.gitkeep
@@ -31,3 +36,9 @@ frontend/.env
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
+
+# Common credential files (keep out of repo)
+firebase-admin.json
+**/firebase-admin.json
+serviceAccount*.json
+**/serviceAccount*.json
