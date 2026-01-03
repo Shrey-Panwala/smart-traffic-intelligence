@@ -211,16 +211,21 @@ def analyze_async(
         "percentage": None,
         "error": None,
         "result": None,
+        "_last_update": 0,
     }
 
     def handler(processed: int, total: int):
         PROGRESS[task_id]["processed"] = processed
         PROGRESS[task_id]["total"] = total
         PROGRESS[task_id]["percentage"] = float((processed / total) * 100) if total else None
-        try:
-            update_progress_doc(task_id, _progress_for_firestore(task_id, user_uid), user_uid)
-        except Exception:
-            pass
+        # Throttle Firestore updates to reduce overhead (every 10 frames or on completion)
+        last = int(PROGRESS[task_id].get("_last_update") or 0)
+        if (processed - last) >= 10 or (total and processed >= total):
+            PROGRESS[task_id]["_last_update"] = processed
+            try:
+                update_progress_doc(task_id, _progress_for_firestore(task_id, user_uid), user_uid)
+            except Exception:
+                pass
 
     def worker():
         try:

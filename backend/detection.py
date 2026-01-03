@@ -16,6 +16,12 @@ import numpy as np
 import pandas as pd
 import cv2
 
+# Optional torch import for device detection
+try:
+    import torch  # type: ignore
+except Exception:
+    torch = None
+
 try:
     from ultralytics import YOLO
 except Exception:
@@ -132,7 +138,18 @@ def analyze_video(
         total_frames = 0
 
     # Run detection in stream mode to compute counts per frame
-    results = model.predict(source=video_path, conf=conf_threshold, stream=True)
+    # Prefer GPU if available; use half precision on CUDA for speed
+    device = 0 if (torch is not None and getattr(torch, "cuda", None) and torch.cuda.is_available()) else "cpu"
+    use_half = True if device == 0 else False
+    results = model.predict(
+        source=video_path,
+        conf=conf_threshold,
+        stream=True,
+        save=save_overlay,
+        device=device,
+        half=use_half,
+        imgsz=640,
+    )
 
     vehicle_counts: List[int] = []
     snapshot_urls: List[str] = []
@@ -143,7 +160,10 @@ def analyze_video(
     # Snapshot interval: aim for ~2 seconds if fps known, else every 60 frames
     snapshot_interval = 60
     try:
-        snapshot_interval = max(1, int((cap.get(cv2.CAP_PROP_FPS) or 30) * 2))
+        cap_fps = cv2.VideoCapture(video_path)
+        fps_val_local = cap_fps.get(cv2.CAP_PROP_FPS)
+        cap_fps.release()
+        snapshot_interval = max(1, int((fps_val_local or 30) * 2))
     except Exception:
         pass
     # Configure valid vehicle classes for reliability
@@ -219,7 +239,7 @@ def analyze_video(
                 snapshot_urls.append(f"/outputs/snapshots/{video_base}/frame_{processed}.jpg")
         except Exception:
             pass
-        if progress_handler:
+        if progress_handler and (processed % 10 == 0 or (total_frames and processed >= total_frames)):
             progress_handler(processed, total_frames)
 
     if len(vehicle_counts) == 0:
@@ -263,10 +283,7 @@ def analyze_video(
     processed_video_path: Optional[str] = None
     heatmap_path: Optional[str] = None
     if save_overlay:
-        # Save annotated outputs (Ultralytics writes to runs/detect/predict*)
-        # We run a separate prediction with save=True for output artifacts
-        _ = model.predict(source=video_path, conf=conf_threshold, save=True)
-        # Find latest runs/detect/predict directory
+        # Find latest runs/detect/predict directory (generated during streaming above)
         runs_root = os.path.join(os.getcwd(), "runs", "detect")
         if os.path.isdir(runs_root):
             # pick the most recent predict folder
